@@ -1,0 +1,1 @@
+export const FIREBASE_URL = "https://credit-debit-576e6-default-rtdb.firebaseio.com";

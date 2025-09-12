@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+[data-theme="dark"] {
+  --color-bg: black;
+  --color-text: white;
+}
+
+[data-theme="light"] {
+  --color-bg: white;
+  --color-text: black;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
