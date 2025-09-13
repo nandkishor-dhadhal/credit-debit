@@ -11,6 +11,7 @@ export const signupAction = async ({ request }: { request: Request }) => {
   const mobile = formData.get("mobile") as string;
   const panNumber = formData.get("panNumber") as string;
   const password = formData.get("password") as string;
+
   const availablebalance = 55555555;
 
   const accountNumber = Array.from({ length: 14 }, () =>
@@ -18,26 +19,24 @@ export const signupAction = async ({ request }: { request: Request }) => {
   ).join("");
 
   if (!firstName || !lastName || !email || !mobile || !panNumber || !password) {
-    return new Response(JSON.stringify({ error: "All fields are required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "All fields are required" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
-  const existingUsersResponse = await fetch(`${FIREBASE_URL}/usersData.json`);
-  const existingUsersData = await existingUsersResponse.json();
-  const existingUsers: User[] = existingUsersData
-    ? Object.values(existingUsersData)
+  // Fetch all existing users
+  const res = await fetch(`${FIREBASE_URL}/usersData.json`);
+  const existingUsersData = await res.json();
+  const existingUsers = existingUsersData
+    ? (Object.values(existingUsersData) as User[])
     : [];
 
   const userExists = existingUsers.some((user) => user.email === email);
   if (userExists) {
     return new Response(
       JSON.stringify({ error: "User with this email already exists" }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -49,8 +48,7 @@ export const signupAction = async ({ request }: { request: Request }) => {
     panNumber,
     password,
     accountNumber,
-    transactions: {}, 
-    availablebalance
+    availablebalance,
   };
 
   await fetch(`${FIREBASE_URL}/usersData/${accountNumber}.json`, {

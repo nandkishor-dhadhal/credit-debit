@@ -1,95 +1,58 @@
 import {
   createContext,
   useState,
+  useContext,
   useEffect,
   type ReactNode,
-  useContext,
 } from "react";
-import type { Transaction } from "../common/types";
-import { FIREBASE_URL } from "../services/api";
+import type { User, AuthContextType } from "../common/types";
 
-interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-  mobile: string;
-  panNumber: string;
-  accountNumber: string;
-  availablebalance: number;
-  transactions: Transaction[];
-  token: string;
-  password: string;
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-interface AuthContextType {
-  user: User | null;
-  isLogin: boolean;
-  login: (user: User) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLogin: false,
-  login: () => {},
-  logout: () => {},
-});
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const isLogin = !!user;
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("loggedInUser");
-    if (storedUser) {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
+      setToken(storedToken);
       setUser(JSON.parse(storedUser));
     }
   }, []);
 
- 
-  useEffect(() => {
-    if (user) {
-      
-      localStorage.setItem("loggedInUser", JSON.stringify(user));
-
-      const updateUserOnFirebase = async () => {
-        try {
-          const response = await fetch(
-            `${FIREBASE_URL}/usersData/${user.accountNumber}.json`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(user),
-            }
-          );
-
-          if (!response.ok) {
-            console.error("Failed to update user in Firebase");
-          }
-        } catch (error) {
-          console.error("Error updating user in Firebase:", error);
-        }
-      };
-
-      updateUserOnFirebase();
-    } else {
-      localStorage.removeItem("loggedInUser");
-    }
-  }, [user]);
-
-  const login = (userData: User) => {
+  const login = (newToken: string, userData: User) => {
+    setToken(newToken);
     setUser(userData);
+
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
+    setToken(null);
     setUser(null);
-    localStorage.removeItem("loggedInUser");
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  };
+
+  const contextValue: AuthContextType = {
+    token,
+    user,
+    login,
+    logout,
+    isLoggedIn: !!token,
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLogin, login, logout }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
@@ -98,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

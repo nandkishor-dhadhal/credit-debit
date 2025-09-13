@@ -3,10 +3,10 @@ import { FIREBASE_URL } from "../services/api";
 import { v4 as uuidv4 } from "uuid";
 import type { Transaction } from "../common/types";
 
-// Helper: ensure transactions entry exists in transactions DB
 const ensureTransactionRecord = async (accountNumber: string) => {
   const res = await fetch(`${FIREBASE_URL}/transactions/${accountNumber}.json`);
   const data = await res.json();
+
   if (!data) {
     await fetch(`${FIREBASE_URL}/transactions/${accountNumber}.json`, {
       method: "PUT",
@@ -16,19 +16,26 @@ const ensureTransactionRecord = async (accountNumber: string) => {
   }
 };
 
-export const transferMoneyAction = async ({ request }: { request: Request }) => {
+export const transferMoneyAction = async ({
+  request,
+}: {
+  request: Request;
+}) => {
   const formData = await request.formData();
 
   const receiverAccount = formData.get("accountNumber") as string;
   const amount = Number(formData.get("amount"));
   const note = (formData.get("note") as string) || "";
 
-  const authUserData = localStorage.getItem("authUser");
-  if (!authUserData) return redirect("/");
+  const authUserData = localStorage.getItem("user");
+  if (!authUserData) return redirect("/login");
 
   const senderAccount = JSON.parse(authUserData).accountNumber;
+  if (senderAccount === receiverAccount) {
+    alert("Can't send to your own account.");
+    return redirect("/transfer-money");
+  }
 
-  // Fetch sender and receiver data
   const [receiverRes, senderRes] = await Promise.all([
     fetch(`${FIREBASE_URL}/usersData/${receiverAccount}.json`),
     fetch(`${FIREBASE_URL}/usersData/${senderAccount}.json`),
@@ -36,18 +43,16 @@ export const transferMoneyAction = async ({ request }: { request: Request }) => 
 
   const receiverData = await receiverRes.json();
   const senderData = await senderRes.json();
-
   if (!receiverData) {
-    alert("Cannot send money to a non-existing user.");
-    return redirect("/");
+    alert("Receiver account does not exist.");
+    return redirect("/transfer-money");
   }
 
   if ((senderData.availablebalance || 0) < amount) {
-    alert("Insufficient balance.");
-    return redirect("/");
+    alert("Insufficient availablebalance.");
+    return redirect("/transfer-money");
   }
 
-  // Ensure transactions record exists in separate DB for both users
   await Promise.all([
     ensureTransactionRecord(receiverAccount),
     ensureTransactionRecord(senderAccount),
@@ -76,21 +81,25 @@ export const transferMoneyAction = async ({ request }: { request: Request }) => 
     type: "DEBIT",
   };
 
-  // Add transactions to separate transactions node
   await Promise.all([
-    fetch(`${FIREBASE_URL}/transactions/${receiverAccount}/${transactionId}.json`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(receiverTransaction),
-    }),
-    fetch(`${FIREBASE_URL}/transactions/${senderAccount}/${transactionId}.json`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(senderTransaction),
-    }),
+    fetch(
+      `${FIREBASE_URL}/transactions/${receiverAccount}/${transactionId}.json`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(receiverTransaction),
+      }
+    ),
+    fetch(
+      `${FIREBASE_URL}/transactions/${senderAccount}/${transactionId}.json`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(senderTransaction),
+      }
+    ),
   ]);
 
-  // Update balances
   await Promise.all([
     fetch(`${FIREBASE_URL}/usersData/${receiverAccount}.json`, {
       method: "PATCH",

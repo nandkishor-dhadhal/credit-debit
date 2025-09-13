@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 
-const Navbar = () => {
+const UserNavbar = () => {
   const [active, setActive] = useState<string>("dashboard");
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -65,4 +65,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default UserNavbar;

@@ -28,9 +28,7 @@ export const loginAction = async ({ request }: { request: Request }) => {
   }
 
   const token = generateToken();
-  const userWithToken = { ...user, token };
 
-  localStorage.setItem("loggedInUser", JSON.stringify(userWithToken));
-
-  return user;
+  return { token, user };
 };
+

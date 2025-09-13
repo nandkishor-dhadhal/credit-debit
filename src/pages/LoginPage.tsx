@@ -1,21 +1,30 @@
 import { useFormik } from "formik";
 import type { Login } from "../common/types";
-import { useActionData, useNavigate, useSubmit } from "react-router-dom";
+import { Link, useActionData, useNavigate, useSubmit } from "react-router-dom";
 import * as Yup from "yup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/authContext";
 
 const LoginPage = () => {
   const submit = useSubmit();
   const auth = useAuth();
   const navigate = useNavigate();
-  const actionData = useActionData();
+
+  const actionData = useActionData() as
+    | { token?: string; user?: never; error?: string }
+    | undefined;
+
+  const [serverError, setServerError] = useState<string | null>(null);
+
   useEffect(() => {
-    if (actionData) {
-      auth.login(actionData);
+    if (actionData?.token && actionData.user) {
+      auth.login(actionData.token, actionData.user);
       navigate("/", { replace: true });
+    } else if (actionData?.error) {
+      setServerError(actionData.error);
     }
   }, [actionData]);
+
   const initialValues: Login = {
     accountNumber: "",
     password: "",
@@ -41,10 +50,11 @@ const LoginPage = () => {
   return (
     <div className="max-w-md mx-auto border-2 rounded-2xl mt-40 p-5">
       <form onSubmit={formik.handleSubmit} className="space-y-4">
+        {serverError && (
+          <p className="text-red-500 text-sm text-center">{serverError}</p>
+        )}
         <div className="flex flex-col">
-          <label htmlFor="accountNumber" className="mb-1">
-            Account Number
-          </label>
+          <label htmlFor="accountNumber">Account Number</label>
           <input
             type="text"
             id="accountNumber"
@@ -56,17 +66,14 @@ const LoginPage = () => {
             className="w-full p-2 border rounded"
           />
           {formik.touched.accountNumber && formik.errors.accountNumber && (
-            <p className="text-red-500 text-xs font-medium flex items-center gap-1 mt-1">
-              <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+            <p className="text-red-500 text-xs">
               {formik.errors.accountNumber}
             </p>
           )}
         </div>
 
         <div className="flex flex-col">
-          <label htmlFor="password" className="mb-1">
-            Password
-          </label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
@@ -78,10 +85,7 @@ const LoginPage = () => {
             className="w-full p-2 border rounded"
           />
           {formik.touched.password && formik.errors.password && (
-            <p className="text-red-500 text-xs font-medium flex items-center gap-1 mt-1">
-              <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-              {formik.errors.password}
-            </p>
+            <p className="text-red-500 text-xs">{formik.errors.password}</p>
           )}
         </div>
 
@@ -91,7 +95,14 @@ const LoginPage = () => {
         >
           Login
         </button>
+        <p className="mt-4 text-center">
+          Don't have an account?
+          <Link to="/signup" className="text-blue-700 pl-1 underline">
+            Signup
+          </Link>
+        </p>
       </form>
+      <h1 className="pl-27 pt-5">Admin : 25477596035297</h1>
     </div>
   );
 };
