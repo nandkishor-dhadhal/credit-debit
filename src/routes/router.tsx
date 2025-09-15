@@ -1,46 +1,73 @@
 import { createBrowserRouter } from "react-router-dom";
-import UserLayOut from "../layout/UserLayout";
-import HomePage from "../pages/user/Home";
-import TransferMoneyPage from "../pages/user/TransferMoney";
-import AllTransactionDetail from "../pages/user/AllTransactions/Transactions";
-import AdminDashboard from "../pages/admin/Dashboard";
-import { transferMoneyAction } from "../actions/user/transfer-money.action";
-import { signupAction } from "../actions/auth/signup.action";
-import { loginAction } from "../actions/auth/login.action";
-import { homePageLoader } from "../loaders/user/home.loader";
-import { userHistoryLoader } from "../loaders/user/transactions.loader";
-import { adminDashboard } from "../loaders/admin/dashboard.loader";
-import AdminLayOut from "../layout/AdminLayout";
+import { Suspense, lazy } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginWrapper from "./LoginWrapper";
 import SignupWrapper from "./SignupWrapper";
-import UserManagement from "../pages/admin/UserManagement";
-import { userManagementLoader } from "../loaders/admin/user-management.loader";
-import EditUser from "../pages/admin/EditUser";
-import UserTransactionHistory from "../pages/admin/UserTransactionHistory";
+import { homePageLoader } from "../loaders/user/home.loader";
 import { editUserLoader } from "../loaders/admin/edit-user.loader";
-import { editUserAction } from "../actions/admin/edit-user.action";
+import { adminDashboard } from "../loaders/admin/dashboard.loader";
+import { userHistoryLoader } from "../loaders/user/transactions.loader";
+import { userManagementLoader } from "../loaders/admin/user-management.loader";
 import { userTransactionHistoryLoader } from "../loaders/admin/user-transactions.loader";
+import { loginAction } from "../actions/auth/login.action";
+import { signupAction } from "../actions/auth/signup.action";
+import { editUserAction } from "../actions/admin/edit-user.action";
+import { transferMoneyAction } from "../actions/user/transfer-money.action";
+import Loader from "../components/Loader";
 
+const UserLayOut = lazy(() => import("../layout/UserLayout"));
+const AdminLayOut = lazy(() => import("../layout/AdminLayout"));
+const HomePage = lazy(() => import("../pages/user/Home"));
+const TransferMoneyPage = lazy(() => import("../pages/user/TransferMoney"));
+const AllTransactionDetail = lazy(
+  () => import("../pages/user/AllTransactions/Transactions")
+);
+const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
+const UserManagement = lazy(() => import("../pages/admin/UserManagement"));
+const EditUser = lazy(() => import("../pages/admin/EditUser"));
+const UserTransactionHistory = lazy(
+  () => import("../pages/admin/UserTransactionHistory")
+);
+
+// eslint-disable-next-line react-refresh/only-export-components
+const LoadingFallback = () => <Loader />;
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <ProtectedRoute allowedRoles={["user"]}>
-        <UserLayOut />
+        <Suspense fallback={<LoadingFallback />}>
+          <UserLayOut />
+        </Suspense>
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <HomePage />, loader: homePageLoader },
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <HomePage />
+          </Suspense>
+        ),
+        loader: homePageLoader,
+      },
       {
         path: "transactions",
-        element: <AllTransactionDetail />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AllTransactionDetail />
+          </Suspense>
+        ),
         loader: userHistoryLoader,
       },
       {
         path: "transfer-money",
-        element: <TransferMoneyPage />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <TransferMoneyPage />
+          </Suspense>
+        ),
         action: transferMoneyAction,
       },
     ],
@@ -49,29 +76,47 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: (
       <ProtectedRoute allowedRoles={["admin"]}>
-        <AdminLayOut />
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminLayOut />
+        </Suspense>
       </ProtectedRoute>
     ),
     children: [
       {
         index: true,
-        element: <AdminDashboard />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminDashboard />
+          </Suspense>
+        ),
         loader: adminDashboard,
       },
       {
         path: "users",
-        element: <UserManagement />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <UserManagement />
+          </Suspense>
+        ),
         loader: userManagementLoader,
       },
       {
         path: "users/edit/:accountNumber",
-        element: <EditUser />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <EditUser />
+          </Suspense>
+        ),
         loader: editUserLoader,
         action: editUserAction,
       },
       {
         path: "users/transactions/:accountNumber",
-        element: <UserTransactionHistory />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <UserTransactionHistory />
+          </Suspense>
+        ),
         loader: userTransactionHistoryLoader,
       },
     ],
