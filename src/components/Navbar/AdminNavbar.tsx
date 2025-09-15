@@ -6,28 +6,34 @@ const AdminNavbar = () => {
   const [active, setActive] = useState<string>("dashboard");
   const navigate = useNavigate();
   const { logout } = useAuth();
+
   const buttonHandler = (id: string) => {
     setActive(id);
+
     if (id === "dashboard") {
       navigate("/admin");
     } else if (id === "users") {
       navigate("/admin/users");
-    } else {
+    }
+  };
+
+  const logoutButtonHandler = () => {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+
+    if (confirmed) {
       logout();
     }
   };
 
   const getButtonClass = (id: string, baseColor: string) => {
     const activeClass = active === id ? "ring-2 ring-offset-2" : "";
-    return `border-2 p-3 rounded-3xl cursor-pointer ${baseColor} hover:${baseColor} ${activeClass}`;
+    return `border-2 p-3 rounded-3xl cursor-pointer ${baseColor} ${activeClass}`;
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 pt-5 border-">
+    <nav className="flex items-center justify-between p-4 pt-5 border-b">
       <div
-        onClick={() => {
-          navigate("/admin");
-        }}
+        onClick={() => navigate("/admin")}
         className="text-3xl font-bold cursor-pointer"
       >
         VaultPay
@@ -55,7 +61,7 @@ const AdminNavbar = () => {
 
         <button
           id="logout"
-          onClick={() => buttonHandler("logout")}
+          onClick={logoutButtonHandler}
           className={getButtonClass("logout", "bg-red-500 hover:bg-red-600")}
         >
           Logout

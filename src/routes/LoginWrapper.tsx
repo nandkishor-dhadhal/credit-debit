@@ -7,7 +7,7 @@ const LoginWrapper = () => {
   const isLoggedIn = !!token;
 
   if (isLoggedIn) {
-    if (user?.accountNumber === "31319980858019") {
+    if (user?.accountNumber === "44630210978676") {
       return <Navigate to="/admin" replace />;
     }
     return <Navigate to="/" replace />;

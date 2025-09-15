@@ -102,7 +102,7 @@ const Login = () => {
           </Link>
         </p>
       </form>
-      <h1 className="pl-27 pt-5">Admin : 31319980858019</h1>
+      <h1 className="pl-27 pt-5">Admin : 44630210978676</h1>
     </div>
   );
 };

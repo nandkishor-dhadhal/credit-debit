@@ -2,6 +2,7 @@ import { FIREBASE_URL } from "../../services/api";
 import type { Transaction } from "../../common/types";
 import { redirect } from "react-router-dom";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const userTransactionHistoryLoader = async ({ params }: { params: any }) => {
   const authUserData = localStorage.getItem("user");
   if (!authUserData) return redirect("/login");

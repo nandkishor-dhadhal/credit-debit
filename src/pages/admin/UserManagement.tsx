@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import $ from "jquery";
 import "datatables.net";
-import type { userManagementLoaderProps } from "../../loaders/admin/user-management.loader"
+import type { userManagementLoaderProps } from "../../loaders/admin/user-management.loader";
 import { FIREBASE_URL } from "../../services/api";
 
 const UserManagement: React.FC = () => {
@@ -90,19 +90,19 @@ const UserManagement: React.FC = () => {
                 <td className="px-4 py-2 border-b text-center space-x-2">
                   <button
                     onClick={() => handleEdit(user.accountNumber)}
-                    className="px-3 py-1 rounded border shadow hover:scale-105 transition-transform"
+                    className="px-3 bg-green-500 cursor-pointer py-1 rounded border shadow hover:scale-105 transition-transform"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(user.accountNumber)}
-                    className="px-3 py-1 rounded border shadow hover:scale-105 transition-transform"
+                    className="px-3 bg-red-500 cursor-pointer py-1 rounded border shadow hover:scale-105 transition-transform"
                   >
                     Delete
                   </button>
                   <button
                     onClick={() => handleHistory(user.accountNumber)}
-                    className="px-3 py-1 rounded border shadow hover:scale-105 transition-transform"
+                    className="px-3 bg-cyan-500 cursor-pointer py-1 rounded border shadow hover:scale-105 transition-transform"
                   >
                     History
                   </button>

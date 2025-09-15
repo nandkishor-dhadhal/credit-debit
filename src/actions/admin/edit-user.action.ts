@@ -1,22 +1,35 @@
 import { FIREBASE_URL } from "../../services/api";
-import { redirect } from "react-router-dom";
+import type { User } from "../../common/types";
 
-export const editUserAction = async ({
-  request,
-  params,
-}: {
-  request: Request;
-  params: any;
-}) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const editUserAction = async ({ request, params }: any) => {
   const formData = await request.formData();
 
-  const updatedUser = Object.fromEntries(formData);
+  const updatedUser: User = {
+    accountNumber: params.accountNumber,
+    firstName: formData.get("firstName") as string,
+    lastName: formData.get("lastName") as string,
+    email: formData.get("email") as string,
+    mobile: formData.get("mobile") as string,
+    panNumber: formData.get("panNumber") as string,
+    availablebalance: Number(formData.get("availablebalance")),
+    password: formData.get("password") as string,
+  };
 
-  await fetch(`${FIREBASE_URL}/usersData/${params.accountNumber}.json`, {
-    method: "PATCH",
-    body: JSON.stringify(updatedUser),
-    headers: { "Content-Type": "application/json" },
-  });
+  const res = await fetch(
+    `${FIREBASE_URL}/usersData/${params.accountNumber}.json`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updatedUser),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-  return redirect("/admin/users");
+  if (!res.ok) {
+    return { success: false, message: "Failed to update user." };
+  }
+
+  return { success: true, message: "User updated successfully!" };
 };

@@ -32,8 +32,7 @@ export const transferMoneyAction = async ({
 
   const senderAccount = JSON.parse(authUserData).accountNumber;
   if (senderAccount === receiverAccount) {
-    alert("Can't send to your own account.");
-    return redirect("/transfer-money");
+    return { success: false, message: "You cannot send money to your own account." };
   }
 
   const [receiverRes, senderRes] = await Promise.all([
@@ -43,14 +42,13 @@ export const transferMoneyAction = async ({
 
   const receiverData = await receiverRes.json();
   const senderData = await senderRes.json();
+
   if (!receiverData) {
-    alert("Receiver account does not exist.");
-    return redirect("/transfer-money");
+    return { success: false, message: "Receiver account does not exist." };
   }
 
   if ((senderData.availablebalance || 0) < amount) {
-    alert("Insufficient availablebalance.");
-    return redirect("/transfer-money");
+    return { success: false, message: "Insufficient available balance." };
   }
 
   await Promise.all([
@@ -117,5 +115,5 @@ export const transferMoneyAction = async ({
     }),
   ]);
 
-  return redirect("/");
+  return { success: true, message: "Money transferred successfully!" };
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   LineChart,
   Line,
@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useLoaderData } from "react-router-dom";
+import { Await, useLoaderData, useNavigation } from "react-router-dom";
 import type { Transaction, User } from "../../common/types";
 
 const generateRandomGraphData = () => {
@@ -30,6 +30,28 @@ interface LoaderData {
   topUserByBalance: User[];
 }
 
+
+const LoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center h-64 space-y-4">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-300"></div>
+    <p className="text-lg text-amber-300 animate-pulse">
+      Loading your account data...
+    </p>
+  </div>
+);
+
+const ErrorFallback = ({ error }: { error: Error }) => (
+  <div className="flex flex-col items-center justify-center h-64 space-y-4">
+    <div className="text-red-500 text-xl">⚠️</div>
+    <p className="text-red-500">${error.message}</p>
+    <button
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+    >
+      Retry
+    </button>
+  </div>
+);
 const AdminDashboard: React.FC = () => {
   const {
     totalUser,
@@ -39,142 +61,173 @@ const AdminDashboard: React.FC = () => {
     recentTransactions,
     topUserByBalance,
   } = useLoaderData() as LoaderData;
-  console.log(recentTransactions);
+  const navigation = useNavigation();
+
+  const isLoading = navigation.state === "loading";
+
   return (
-    <div className="h-163 flex flex-col p-4 space-y-4 overflow-hidden">
-      <div className="grid grid-cols-4 gap-4">
-        {[
-          { label: "Total Users", value: totalUser.toLocaleString() },
-          {
-            label: "Total Balance",
-            value: `₹${totalBalance.toLocaleString()}`,
-          },
-          { label: "Total Credits", value: totalCredits },
-          { label: "Total Debits", value: totalDebits },
-        ].map((item, idx) => (
-          <div
-            key={idx}
-            className="flex flex-col justify-center items-center p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
-          >
-            <span className="text-xl font-bold">{item.value}</span>
-            <span className="text-xs mt-1">{item.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-4 gap-4">
-        {["Add User", "Add Admin", "Reports", "Settings"].map((btn, idx) => (
-          <button
-            key={idx}
-            className="p-3 border rounded-lg shadow hover:shadow-md hover:border-amber-400 transition-all duration-200 font-medium text-sm"
-          >
-            {btn}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex gap-4 h-45">
-        <div className="flex-1 border rounded-lg p-3 overflow-hidden">
-          <h2 className="mb-2 text-sm font-semibold">
-            Top 3 Recent Transactions
-          </h2>
-          <div className="overflow-auto h-28">
-            <table className="w-full table-auto border-collapse text-xs">
-              <thead className="sticky top-0">
-                <tr className="border-b">
-                  <th className="p-1 text-left font-medium">Account</th>
-                  <th className="p-1 text-left font-medium">Amount</th>
-                  <th className="p-1 text-left font-medium">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentTransactions.slice(0, 3).map((tx, idx) => (
-                  <tr
-                    key={idx}
-                    className="cursor-pointer hover:border-amber-400 transition-all duration-200 font-medium text-sm"
-                  >
-                    <td className="p-1 border-b border-gray-100">
-                      {tx.transactionId}
-                    </td>
-                    <td className="p-1 border-b border-gray-100 font-medium text-blue-500">
-                      ₹{Number(tx.amount).toLocaleString()}
-                    </td>
-                    <td className="p-1 border-b border-gray-100">{tx.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6">
+            <LoadingSpinner />
           </div>
         </div>
-
-        <div className="w-110 border rounded-lg p-2">
-          <h2 className="mb-2 text-sm font-semibold p-1">
-            Top 3 Users by Balance
-          </h2>
-          <div className="space-y-1">
-            {topUserByBalance.slice(0, 3).map((user, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between items-center py-1 px-2 rounded cursor-pointer hover:border-amber-400 transition-all duration-200 font-medium text-sm"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium truncate">
-                    {user.firstName}
-                  </div>
-                  <div className="text-xs">{user.accountNumber}</div>
+      )}
+      <Suspense fallback={<LoadingSpinner />}>
+        <Await
+          resolve={Promise.all([
+            totalUser,
+            totalBalance,
+            totalCredits,
+            totalDebits,
+            recentTransactions,
+            topUserByBalance,
+          ])}
+          errorElement={
+            <ErrorFallback error={new Error("Data loading failed")} />
+          }
+        >
+          <div className="h-163 flex flex-col p-4 space-y-4 overflow-hidden">
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { label: "Total Users", value: totalUser.toLocaleString() },
+                {
+                  label: "Total Balance",
+                  value: `₹${totalBalance.toLocaleString()}`,
+                },
+                { label: "Total Credits", value: totalCredits },
+                { label: "Total Debits", value: totalDebits },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col justify-center items-center p-3 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <span className="text-xl font-bold">{item.value}</span>
+                  <span className="text-xs mt-1">{item.label}</span>
                 </div>
-                <span className="text-xs font-bold text-blue-500 ml-2">
-                  ₹{Number(user.availablebalance).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              ))}
+            </div>
 
-      <div className="border rounded-lg p-3 flex flex-col flex-1">
-        <h2 className="mb-2 text-sm font-semibold">
-          Credit vs Debit Over Last 7 Days
-        </h2>
-        <div className="flex-1 min-h-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={graphData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  fontSize: "12px",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="credit"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ r: 4, fill: "#10b981" }}
-                name="Credit"
-              />
-              <Line
-                type="monotone"
-                dataKey="debit"
-                stroke="#ef4444"
-                strokeWidth={2}
-                dot={{ r: 4, fill: "#ef4444" }}
-                name="Debit"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+            <div className="grid grid-cols-4 gap-4">
+              {["Add User", "Add Admin", "Reports", "Settings"].map(
+                (btn, idx) => (
+                  <button
+                    key={idx}
+                    className="p-3 border rounded-lg shadow hover:shadow-md hover:border-amber-400 transition-all duration-200 font-medium text-sm"
+                  >
+                    {btn}
+                  </button>
+                )
+              )}
+            </div>
+
+            <div className="flex gap-4 h-45">
+              <div className="flex-1 border rounded-lg p-3 overflow-hidden">
+                <h2 className="mb-2 text-sm font-semibold">
+                  Top 3 Recent Transactions
+                </h2>
+                <div className="overflow-auto h-28">
+                  <table className="w-full table-auto border-collapse text-xs">
+                    <thead className="sticky top-0">
+                      <tr className="border-b">
+                        <th className="p-1 text-left font-medium">Account</th>
+                        <th className="p-1 text-left font-medium">Amount</th>
+                        <th className="p-1 text-left font-medium">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentTransactions.slice(0, 3).map((tx, idx) => (
+                        <tr
+                          key={idx}
+                          className="cursor-pointer hover:border-amber-400 transition-all duration-200 font-medium text-sm"
+                        >
+                          <td className="p-1 border-b border-gray-100">
+                            {tx.transactionId}
+                          </td>
+                          <td className="p-1 border-b border-gray-100 font-medium text-blue-500">
+                            ₹{Number(tx.amount).toLocaleString()}
+                          </td>
+                          <td className="p-1 border-b border-gray-100">
+                            {tx.date}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="w-110 border rounded-lg p-2">
+                <h2 className="mb-2 text-sm font-semibold p-1">
+                  Top 3 Users by Balance
+                </h2>
+                <div className="space-y-1">
+                  {topUserByBalance.slice(0, 3).map((user, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center py-1 px-2 rounded cursor-pointer hover:border-amber-400 transition-all duration-200 font-medium text-sm"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-medium truncate">
+                          {user.firstName}
+                        </div>
+                        <div className="text-xs">{user.accountNumber}</div>
+                      </div>
+                      <span className="text-xs font-bold text-blue-500 ml-2">
+                        ₹{Number(user.availablebalance).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="border rounded-lg p-3 flex flex-col flex-1">
+              <h2 className="mb-2 text-sm font-semibold">
+                Credit vs Debit Over Last 7 Days
+              </h2>
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={graphData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{
+                        fontSize: "12px",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="credit"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#10b981" }}
+                      name="Credit"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="debit"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#ef4444" }}
+                      name="Debit"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </Await>
+      </Suspense>
     </div>
   );
 };
-
 export default AdminDashboard;
