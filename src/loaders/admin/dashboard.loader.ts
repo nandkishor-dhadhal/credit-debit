@@ -1,6 +1,6 @@
 import { redirect } from "react-router-dom";
-import { FIREBASE_URL } from "../services/api";
-import type { Transaction, User } from "../common/types";
+import { FIREBASE_URL } from "../../services/api";
+import type { Transaction, User } from "../../common/types";
 
 interface AdminDashboardProps {
   totalUser: number;

@@ -1,6 +1,6 @@
 import { redirect } from "react-router-dom";
-import { FIREBASE_URL } from "../services/api";
-import type { User } from "../common/types";
+import { FIREBASE_URL } from "../../services/api";
+import type { User } from "../../common/types";
 
 export const signupAction = async ({ request }: { request: Request }) => {
   const formData = await request.formData();
@@ -19,13 +19,12 @@ export const signupAction = async ({ request }: { request: Request }) => {
   ).join("");
 
   if (!firstName || !lastName || !email || !mobile || !panNumber || !password) {
-    return new Response(
-      JSON.stringify({ error: "All fields are required" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "All fields are required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  // Fetch all existing users
   const res = await fetch(`${FIREBASE_URL}/usersData.json`);
   const existingUsersData = await res.json();
   const existingUsers = existingUsersData

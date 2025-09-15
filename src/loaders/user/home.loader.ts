@@ -1,6 +1,6 @@
 import { redirect } from "react-router-dom";
-import { FIREBASE_URL } from "../services/api";
-import type { Transaction } from "../common/types";
+import { FIREBASE_URL } from "../../services/api";
+import type { Transaction } from "../../common/types";
 
 interface HomePageLoaderData {
   recentHistory: Transaction[];

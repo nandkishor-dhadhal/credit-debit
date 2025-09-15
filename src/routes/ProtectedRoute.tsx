@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  const isAdmin = user?.accountNumber === "25477596035297";
+  const isAdmin = user?.accountNumber === "31319980858019";
   const userRole = isAdmin ? "admin" : "user";
 
   if (!allowedRoles.includes(userRole)) {

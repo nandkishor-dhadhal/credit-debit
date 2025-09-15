@@ -1,5 +1,5 @@
-import { FIREBASE_URL } from "../services/api";
-import type { User } from "../common/types";
+import { FIREBASE_URL } from "../../services/api";
+import type { User } from "../../common/types";
 
 function generateToken() {
   return Math.random().toString(36).substr(2) + Date.now().toString(36);

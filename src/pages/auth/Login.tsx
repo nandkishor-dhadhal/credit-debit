@@ -1,11 +1,11 @@
 import { useFormik } from "formik";
-import type { Login } from "../common/types";
+import type { Login } from "../../common/types";
 import { Link, useActionData, useNavigate, useSubmit } from "react-router-dom";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 
-const LoginPage = () => {
+const Login = () => {
   const submit = useSubmit();
   const auth = useAuth();
   const navigate = useNavigate();
@@ -102,9 +102,9 @@ const LoginPage = () => {
           </Link>
         </p>
       </form>
-      <h1 className="pl-27 pt-5">Admin : 25477596035297</h1>
+      <h1 className="pl-27 pt-5">Admin : 31319980858019</h1>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

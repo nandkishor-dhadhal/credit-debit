@@ -1,7 +1,7 @@
 import { redirect } from "react-router-dom";
-import { FIREBASE_URL } from "../services/api";
+import { FIREBASE_URL } from "../../services/api";
 import { v4 as uuidv4 } from "uuid";
-import type { Transaction } from "../common/types";
+import type { Transaction } from "../../common/types";
 
 const ensureTransactionRecord = async (accountNumber: string) => {
   const res = await fetch(`${FIREBASE_URL}/transactions/${accountNumber}.json`);

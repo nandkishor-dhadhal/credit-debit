@@ -1,6 +1,6 @@
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 import { Link, useLocation } from "react-router-dom";
-import AvailableMoney from "./AvailableMoney";
+import AvailableMoney from "../balance/AvailableBalance";
 
 interface TransferMoneyProps {
   availablebalance: number;

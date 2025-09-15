@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 
-import type { SignUp } from "../common/types";
+import type { SignUp } from "../../common/types";
 import {
   validateConfirmPassword,
   validateMail,
@@ -8,10 +8,10 @@ import {
   validatePanNumber,
   validatePassword,
   validationSchema,
-} from "../validators/authValidators";
+} from "../../validators/auth.validators";
 import { Link, useSubmit } from "react-router-dom";
 
-const SignUpPage = () => {
+const Signup = () => {
   const submit = useSubmit();
 
   const initialValues: SignUp = {
@@ -267,4 +267,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage;
+export default Signup;

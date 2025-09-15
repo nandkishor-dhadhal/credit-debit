@@ -1,22 +1,26 @@
 import { createBrowserRouter } from "react-router-dom";
-import UserLayOut from "../layout/UserLayOut/UserLayOut";
-import HomePage from "../pages/HomePage";
-import TransferMoneyPage from "../pages/TransferMoneyPage";
-import AllTransactionDetail from "../pages/AllTransactionDetail/AllTransactionDetail";
-import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
-import { transferMoneyAction } from "../actions/transferMoneyAction";
-import { signupAction } from "../actions/signupAction";
-import { loginAction } from "../actions/loginAction";
-import { homePageLoader } from "../loaders/homePageLoader";
-import { userHistoryLoader } from "../loaders/userHistoryLoader";
-import { adminDashboard } from "../loaders/adminDashboard";
-import AdminLayOut from "../layout/AdminLayOut/AdminLayOut";
-
+import UserLayOut from "../layout/UserLayout";
+import HomePage from "../pages/user/Home";
+import TransferMoneyPage from "../pages/user/TransferMoney";
+import AllTransactionDetail from "../pages/user/AllTransactions/Transactions";
+import AdminDashboard from "../pages/admin/Dashboard";
+import { transferMoneyAction } from "../actions/user/transfer-money.action";
+import { signupAction } from "../actions/auth/signup.action";
+import { loginAction } from "../actions/auth/login.action";
+import { homePageLoader } from "../loaders/user/home.loader";
+import { userHistoryLoader } from "../loaders/user/transactions.loader";
+import { adminDashboard } from "../loaders/admin/dashboard.loader";
+import AdminLayOut from "../layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginWrapper from "./LoginWrapper";
 import SignupWrapper from "./SignupWrapper";
-import UserManagement from "../pages/UserManagement";
-import { userManagementLoader } from "../loaders/userManagementLoader";
+import UserManagement from "../pages/admin/UserManagement";
+import { userManagementLoader } from "../loaders/admin/user-management.loader";
+import EditUser from "../pages/admin/EditUser";
+import UserTransactionHistory from "../pages/admin/UserTransactionHistory";
+import { editUserLoader } from "../loaders/admin/edit-user.loader";
+import { editUserAction } from "../actions/admin/edit-user.action";
+import { userTransactionHistoryLoader } from "../loaders/admin/user-transactions.loader";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +61,17 @@ export const router = createBrowserRouter([
         path: "users",
         element: <UserManagement />,
         loader: userManagementLoader,
+      },
+      {
+        path: "users/edit/:accountNumber",
+        element: <EditUser />,
+        loader: editUserLoader,
+        action: editUserAction,
+      },
+      {
+        path: "users/transactions/:accountNumber",
+        element: <UserTransactionHistory />,
+        loader: userTransactionHistoryLoader,
       },
     ],
   },

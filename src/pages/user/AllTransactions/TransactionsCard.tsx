@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import $ from "jquery";
 import "datatables.net";
-import type { Transaction } from "../../common/types";
-import "../../index.css";
+import type { Transaction } from "../../../common/types";
+import "../../../index.css";
 
 interface AllTransactionDetailCardProps {
   transactions: Transaction[];

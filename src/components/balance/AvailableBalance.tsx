@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 
-interface AvailableMoneyProps {
+interface AvailableBalanceProps {
   availablebalance: number;
 }
 
-const AvailableMoney: React.FC<AvailableMoneyProps> = ({
+const AvailableBalance: React.FC<AvailableBalanceProps> = ({
   availablebalance,
 }) => {
   const { user } = useAuth();
@@ -94,4 +94,4 @@ const AvailableMoney: React.FC<AvailableMoneyProps> = ({
   );
 };
 
-export default AvailableMoney;
+export default AvailableBalance;

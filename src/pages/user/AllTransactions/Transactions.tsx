@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router-dom";
-import AllTransactionDetailCard from "./AllTransactionDetailCard";
-import type { Transaction } from "../../common/types";
+import AllTransactionDetailCard from "./TransactionsCard";
+import type { Transaction } from "../../../common/types";
 
 const AllTransactionDetail = () => {
   const { transactionDetails } = useLoaderData() as {

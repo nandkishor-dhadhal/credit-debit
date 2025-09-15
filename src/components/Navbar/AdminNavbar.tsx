@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/authContext";
 
-const Navbar = () => {
+const AdminNavbar = () => {
   const [active, setActive] = useState<string>("dashboard");
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -65,4 +65,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default AdminNavbar;

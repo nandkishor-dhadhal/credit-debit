@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router-dom";
-import RecentHistory from "../components/RecentHistory/RecentHistory";
-import TransferMoney from "../components/TransferMoney";
-import type { Transaction } from "../common/types";
+import RecentHistory from "../../components/recent-history/RecentHistory";
+import TransferMoney from "../../components/transfer/TransferMoneyForm";
+import type { Transaction } from "../../common/types";
 
 interface HomePageLoaderData {
   recentHistory: Transaction[];
